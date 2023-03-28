@@ -93,11 +93,20 @@ int main(int argc, char *argv[]) {
 
         // Check if any client socket has activity
         for (i = 0; i < MAX_CLIENTS; i++) {
-            int sd = client_sock[i];
+        int sd = client_sock[i];
 
-            if (FD_ISSET(sd, &readfds)) {
-                // Check if it was for closing
-                if ((valread = read(sd, buffer, 1024)) == 0) {
-                    // Client disconnected
-                    close(sd);
-                   
+    if (FD_ISSET(sd, &readfds)) {
+        // Check if it was for closing
+        if ((valread = read(sd, buffer, 1024)) == 0) {
+            // Client disconnected
+            close(sd);
+            client_sock[i] = 0;
+            printf("Client %d disconnected\n", i + 1);
+        } else {
+            // Echo back the message that came in
+            buffer[valread] = '\0';
+            send(sd, buffer, strlen(buffer), 0);
+        }
+    }
+}
+
